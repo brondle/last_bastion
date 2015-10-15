@@ -1,0 +1,23 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="styles.css">
+		<script src="Kinetic.js"></script>
+		<script src="scripts.js"></script>
+	</head>
+	<body>
+		<div id="container">
+			<h1 class="title"> THE LAST BASTION </h1>
+			<table border="1" align="center">
+				<tr>
+					<td> SCORE: <p id="score"></p></td>
+					<td> <p id="status">STATUS:</p></td>
+					<td> <input type="button" value="reset" onclick="resetAll()"/> </td>
+					<td> <input type="button" value="start" onclick="start()" id="btx" /> </td>
+				</tr>
+			</table>
+			<br>
+			<canvas id="primary" width="1000" height="500" style="border:1px solid black" onclick="hitIt()"></canvas>
+		</div>
+	</body>
+</html>

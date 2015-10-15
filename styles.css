@@ -1,0 +1,15 @@
+body {
+	border: 2px solid;
+	border-radius: 100px;
+	text-align: center;
+}
+
+#status{
+	-webkit-transition: color 100ms ease-in;
+}
+
+/* check out "Tron" and "FFE" fonts */
+
+#title {
+	text-shadow: 10px 10px 10px #000000;
+}
