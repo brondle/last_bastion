@@ -14,8 +14,8 @@
 		var asteroids = new Array();
 		topScore = false;
 
-
 		window.onload = function() {
+
 			checkVars();
 			var kin = new Kinetic_2d("primary");
 			var context = kin.getContext();
@@ -39,9 +39,21 @@
 						curPos[1] = 0;
 					}
 				});
+				drawBase();
+				worldXContext.clearRect(435, 407, 100, 100);
 		};
 
 		function checkVars(){
+			console.log(sessionStorage.beatLevel);
+			if(localStorage.beatLevel == "true") {
+				var worldX = document.getElementById("primary");
+				var ctx = worldX.getContext("2d");
+				ctx.fillStyle = "white";
+				ctx.font = "30px Arial";
+				ctx.fillText(("GOOD JOB! NEXT WAVE:" + sessionStorage.enemies), 400, 250);
+				ctx.fill();
+				sessionStorage.beatLevel = false;
+			}
 			if(sessionStorage.hit==0 || sessionStorage.hit==undefined) {
 				sessionStorage.hit=0;
 			}
@@ -63,6 +75,9 @@
 			}
 
 		function start(){
+			var worldX = document.getElementById("primary");
+			var ctx = worldX.getContext("2d");
+			ctx.clearRect(0, 0, 1000, 500);
 			var gun = new Gun();
 			/* draw asteroids */
 			intervalId1 = setInterval(function() {
@@ -77,8 +92,7 @@
 						}
 					},20)
 			}, 500);
-			var worldX = document.getElementById("primary");
-			var ctx = worldX.getContext("2d");
+
 			ctx.strokeRect(434, 406, 102, 102);
 			ctx.beginPath();
 			ctx.arc(485, 500, 75, 2*Math.PI, 0);
@@ -161,7 +175,8 @@
 					checkForTopScore();
 					}			else
 								{
-									this.worldContext.strokeStyle = "#FFFF00";
+									var lineColor = 0;
+									this.worldContext.strokeStyle = 'hsl(' + lineColor++ + ',100%, 50%)';
 									this.worldContext.moveTo(this.x,this.y);
 									this.trajectory();
 									this.worldContext.lineTo(this.x,this.y);
@@ -178,7 +193,6 @@
 						var context = this.worldContext;
 						var x = this.x;
 						var y = this.y;
-						console.log(inBuilding(context, x, y));
 						if (x >= 434 && x<=536) {
 							var sU = "The base was destroyed!";
 							setStatusUpdate(sU);
@@ -225,7 +239,8 @@
 
 
 				if(topScore==true) {
-					alert("You got the top score!");
+					statUp = ("You got the top score!");
+					setStatusUpdate(statUp);
 					topScore = false;
 				}
 
@@ -260,9 +275,9 @@
 				topScore = true;
 			}
 			if(enemiesRemaining==0){
+				sessionStorage.beatLevel = true;
 				sessionStorage.enemies = sessionStorage.enemies * 2;
 				sessionStorage.hit = hit;
-				alert("GOOD JOB! NEXT WAVE:" + sessionStorage.enemies);
 				location.reload(true);
 			}
 		}
@@ -323,7 +338,7 @@
 
 		function drawBase() {
 			world = document.getElementById("primary");
-			ctx = this.world.getContext("2d");
+			ctx = world.getContext("2d");
 			ctx.strokeStyle = "green";
 			ctx.strokeRect(455, 440, 50, 50);
 			ctx.fillStyle = "grey";
