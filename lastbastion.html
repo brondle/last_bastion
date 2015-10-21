@@ -39,10 +39,10 @@
 						curPos[1] = 0;
 					}
 				});
-				var gun = new Gun();
-				worldXContext.clearRect(420, 407, 100, 100);
-				gun.draw();
-				drawBase();
+				// var gun = new Gun();
+				// worldXContext.clearRect(420, 407, 100, 100);
+				// gun.draw();
+				// drawBase();
 		};
 
 		function checkVars(){
@@ -81,6 +81,8 @@
 			ctx.clearRect(0, 0, 1000, 500);
 			drawLandscape();
 			var gun = new Gun();
+			drawBase();
+			gun.draw();
 			/* draw asteroids */
 			intervalId1 = setInterval(function() {
 				var asteroidX = new Asteroid();
@@ -90,7 +92,6 @@
 							asteroidX.fallDown();
 							gun.draw();
 							drawBase();
-
 						}
 					},20)
 			}, 500);
@@ -352,6 +353,7 @@
 		function drawLandscape() {
 			var canvas = document.getElementById("primary");
 			var context = canvas.getContext("2d");
+			var highestPoint = 500;
 			context.strokeStyle = "white";
 			// parameters - change to your liking
 			var STEP_MAX = 2.0;
@@ -385,14 +387,26 @@
 							 height = 0;
 							 slope *= -1;
 					 }
+					 if (highestPoint > height) {
+						 highestPoint = height;
+					 }
 
 					 // draw column
 					context.beginPath();
-					 context.moveTo(x, height -1);
-					 context.lineTo(x, height);
-					 context.stroke();
+					context.moveTo(x, height -1);
+				 	context.lineTo(x, height);
+				 	context.stroke();
 					context.closePath();
+
 			}
+				//	draw	stars
+			for(var x = 0; x <= canvas.width; x+=5) {
+				height = (Math.random() * highestPoint);
+				context.fillStyle = "white";
+				context.fillRect(x, height, 1, 1);
+			}
+
+			console.log(highestPoint);
 		}
 
 </script>
