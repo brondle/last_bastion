@@ -2,18 +2,339 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="styles.css">
+		<link rel="stylesheet" type="text/css" href="bootstrap.css">
 		<script src="Kinetic.js"></script>
-		<script src="scripts.js"></script>
+		<script src="jquery-1.11.3.min.js"></script>
+		<script type = "text/javascript">
+		hit = 0;
+		enemiesRemaining=0;
+		worldEnded=false;
+		var thisPos = new Array();
+		var curPos = new Array();
+		var asteroids = new Array();
+		topScore = false;
+
+
+		window.onload = function() {
+			checkVars();
+			var kin = new Kinetic_2d("primary");
+			var context = kin.getContext();
+			var message = "";
+			var worldX = document.getElementById("primary");
+			var worldXContext = worldX.getContext("2d");
+			worldXContext.strokeStyle = "green";
+			worldXContext.stroke;
+				intervalId1 = 0;
+				intervalId2 = 0;
+				intervalId3 = 0;
+				kin.getCanvas().mouseup = function() {
+					kin.drawStage();
+				};
+				kin.setDrawStage(function() {
+					var mousePos = kin.getMousePos();
+					if (mousePos !== null) {
+						curPos[0] = mousePos.x;
+						curPos[1] = mousePos.y;
+					} else {
+						curPos[0] = 0;
+						curPos[1] = 0;
+					}
+				});
+		};
+
+		function checkVars(){
+			if(sessionStorage.hit==0 || sessionStorage.hit==undefined) {
+				sessionStorage.hit=0;
+			}
+			score = sessionStorage.hit;
+			document.getElementById("score").innerHTML = score;
+
+			if(localStorage.topScore>=sessionStorage.hit && localStorage.topScore!=0) {
+				document.getElementById("topscore").innerHTML = localStorage.topScore;
+			} else if (localStorage.topScore == undefined || localStorage.topScore == 0) {
+					localStorage.topScore =0;
+					document.getElementById("topscore").innerHTML = 0;
+				}
+				if(sessionStorage.enemies==undefined||sessionStorage.enemies==0) {
+					sessionStorage.enemies = 5;
+				}
+
+				enemiesRemaining = sessionStorage.enemies;
+				document.getElementById("enemiesRemaining").innerHTML = enemiesRemaining;
+			}
+
+		function start(){
+
+			/* draw asteroids */
+			var gun = new Gun();
+			intervalId1 = setInterval(function() {
+				var asteroidX = new Asteroid();
+				asteroids.push(asteroidX);
+
+				do{
+					intervalId2= setInterval(function(){
+						asteroidX.fallDown();
+						requestAnimationFrame(gun.draw());
+						reDraw();
+					},20)
+				}while(this.alive == true);
+			}, 500);
+
+			// var gun = new Gun();
+			// intervalId3 = setInterval(function(){
+			// }, 20);
+
+			var c = document.getElementById("primary");
+			var ctx = c.getContext("2d");
+			ctx.strokeStyle = "white";
+			ctx.arc(475, 450, 25, Math.PI, 0, false);
+			ctx.stroke();
+
+
+			btnStarter = document.getElementById("btx");
+			btnStarter.setAttribute("value", "RESTART");
+			btnStarter.setAttribute("onclick", "restart()");
+		}
+
+		function restart() {
+			sessionStorage.hit = 0;
+			sessionStorage.enemies = 0;
+			location.reload(true);
+		}
+
+		function Asteroid() {
+
+			this.world = document.getElementById("primary");
+			this.worldContext = this.world.getContext("2d");
+			this.worldContext.strokeStyle = "#FF0000";
+			this.x = Math.floor(Math.random()*999);
+			this.y = 0;
+			this.alive = true;
+			this.update = false;
+			this.id = intervalId2;
+			if (this.x > 500) {
+				this.direction = "right";
+			} else {
+				this.direction = "left";
+			}
+		}
+
+		Asteroid.prototype.trajectory = function(){
+
+		if(this.x>998){
+			this.direction ="right";
+		}
+		else if(this.x<2){
+			this.direction = "left";
+		}
+
+		if(this.direction=="right"){
+			this.y++;
+			this.x--;
+		}
+		else{
+			this.y++;
+			this.x++;
+		}
+
+		}
+		function killAll() {
+			asteroids.forEach(function(asteroid) {
+				asteroid.alive = false;
+			})
+		}
+
+		Asteroid.prototype.fallDown = function() {
+			if (worldEnded == false) {
+				if (this.alive==true) {
+					this.worldContext.beginPath();
+					if(((thisPos[0]-this.x)<10 &&(thisPos[0]-this.x)>-10&&(thisPos[1] - this.y)<10&& (thisPos[1]-this.y)>-10) && thisPos[0]!=0&&thisPos[1]!=0)
+				{
+					this.alive = false;
+					this.worldContext.strokeStyle = "#FFFF00";
+					this.worldContext.arc(this.x,this.y,10,0,Math.PI*2,true);
+					this.worldContext.stroke();
+					this.worldContext.strokeStyle = "#FF0000";
+					statUp ="<br> ASTEROID DESTROYED!";
+					setStatusUpdate(statUp);
+					//this.y = y;
+					//this.x = x;
+					hit++;
+					enemiesRemaining--;
+					document.getElementById("score").innerHTML = hit;
+					document.getElementById("enemiesRemaining").innerHTML = enemiesRemaining;
+					checkForTopScore();
+					}			else
+								{
+									this.worldContext.moveTo(this.x,this.y);
+									this.trajectory();
+									this.worldContext.lineTo(this.x,this.y);
+									this.worldContext.stroke();
+									if(this.y>250){
+										if(this.update==false){
+
+										statUp ="</br> An asteroid has entered the atmosphere!";
+										setStatusUpdate(statUp);
+										this.update=true;
+										}
+									}
+
+					if(this.y>500){
+						var context = this.worldContext;
+						// context.fillStyle="#FF0000";
+						// context.arc(this.x, this.y, 100, 0, Math.PI*2, true);
+						// context.stroke();
+						// context.fill();
+						var x = this.x;
+						var y = this.y;
+						var radius = 100;
+						this.alive = false;
+						var color = 0;
+						this.worldContext.closePath();
+						killAll();
+						worldEnded = true;
+						function drawExplosion() {
+							context.fillStyle = 'hsl(' + color++ + ',100%, 50%)';
+							context.beginPath();
+							context.arc(x, y, radius, 0, Math.PI*2, false);
+							context.stroke;
+							context.fill();
+							radius += (radius * .5);
+
+							setTimeout(function() {
+							if (radius < 1000) {
+								requestAnimationFrame(drawExplosion);
+							} else {
+								var worldX = document.getElementById("primary");
+								endContext = worldX.getContext("2d");
+								endContext.fillStyle = 'hsl(' + color++ + ',100%, 50%)';
+								endContext.rect(0, 0, 1000, 500);
+								endContext.fill();
+								endContext.fillStyle = "black";
+								endContext.font = "30px Arial";
+								endContext.fillText("GAME OVER", 400, 250);
+								this.intervalId = intervalId2;
+							}
+						}, 400);
+						}
+						drawExplosion();
+					}
+				}
+				}
+			}
+
+			else if(worldEnded == true) {
+
+				var worldX = document.getElementById("primary");
+				var worldXcontext = worldX.getContext("2d");
+
+
+				if(topScore==true) {
+					alert("You got the top score!");
+					topScore = false;
+				}
+
+				window.clearInterval(this.intervalId);
+				window.clearInterval(intervalId1);
+				statUp = "THE WORLD HAS BEEN DESTROYED.";
+				setStatusUpdate(statUp);
+			}
+		}
+
+		function checkForTopScore() {
+			if(localStorage.topScore <= hit){
+				localStorage.topScore = hit;
+				document.getElementById("topscore").innerHTML = hit;
+				topScore = true;
+			}
+			if(enemiesRemaining==0){
+				sessionStorage.enemies = sessionStorage.enemies * 2;
+				sessionStorage.hit = hit;
+				alert("GOOD JOB! NEXT WAVE:" + sessionStorage.enemies);
+				location.reload(true);
+			}
+		}
+
+		function hitIt() {
+			thisPos[0] = curPos[0];
+			thisPos[1]= curPos[1];
+			setTimeout("emptySights()", 500);
+		}
+
+		function emptySights() {
+			thisPos[0] = 0;
+			thisPos[1] = 0;
+		}
+
+		function setStatusUpdate(msg) {
+			document.getElementById("status").innerHTML = msg;
+			z=0;
+			setInterval(function() {
+				z++;
+				if((z%2) ==0) {
+					sU= document.getElementById("status");
+					sU.setAttribute("style", "color:black;");
+				} else {
+					sU = document.getElementById("status");
+					sU.setAttribute("style", "color:white;");
+				}
+			}, 100);
+		}
+
+		function Gun() {
+			this.world = document.getElementById("primary");
+			this.worldContext = this.world.getContext("2d");
+			this.worldContext.strokeStyle = "white";
+		}
+
+		Gun.prototype.draw = function() {
+			ctx = this.worldContext;
+			ctx.save;
+			ctx.clearRect(450, 390, 100, 100);
+			var angle = Math.atan2(curPos[1] - 475, curPos[0] - 440);
+			ctx.translate(475, 440);
+			ctx.rotate(angle);
+			ctx.strokeStyle = "white";
+			ctx.fillStyle = "none";
+			ctx.strokeRect(0, 0, 30, 10);
+			ctx.stroke();
+			ctx.rotate(angle*(-1));
+			ctx.translate(-475, -440);
+			ctx.restore();
+		}
+		//
+		function reDraw(context) {
+			// worldX = document.getElementById("primary");
+			// ctx = worldX.getContext("2d");
+			// ctx.translate(450, 425);
+			// ctx.clearRect(0, 0, 50, 50);
+			// ctx.translate(-450, -425);
+			// ctx.strokeStyle = "white";
+			// ctx.arc(475, 450, 25, Math.PI, 0, false);
+			// ctx.stroke();
+		}
+
+
+		function resetAll() {
+			sessionStorage.hit = 0;
+			sessionStorage.enemies = 0;
+			localStorage.topScore = 0;
+			location.reload(true);
+		}
+
+</script>
 	</head>
 	<body>
 		<div id="container">
 			<h1 class="title"> THE LAST BASTION </h1>
 			<table border="1" align="center">
 				<tr>
-					<td> SCORE: <p id="score"></p></td>
-					<td> <p id="status">STATUS:</p></td>
-					<td> <input type="button" value="reset" onclick="resetAll()"/> </td>
-					<td> <input type="button" value="start" onclick="start()" id="btx" /> </td>
+					<td> SCORE: <h1 id="score"></h1></td>
+					<td class="endGame"> TOP SCORE: <h1 id="topscore"></h1></td>
+					<td > ENEMIES REMAINING: <h1 id="enemiesRemaining"></h1></td>
+					<td class="status"> STATUS: <h1 id="status"></h1></td>
+					<td> <input class="dashBtn"  type="button" value="RESET" onclick="resetAll()"/> </td>
+					<td>  <input class="dashBtn" type="button" value="START" onclick="start()" id="btx" /> </td>
 				</tr>
 			</table>
 			<br>

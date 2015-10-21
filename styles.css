@@ -1,10 +1,33 @@
 body {
-	border: 2px solid;
-	border-radius: 100px;
 	text-align: center;
+	font-family: Courier New;
+	background-color: black;
+	color: green;
+}
+
+td {
+	width: 30em;
+	height: 5em;
+	border: none;
+}
+
+.dashBtn {
+	width: 100%;
+	height: 100%;
+	font-family: Courier New;
+	font-weight: bold;
+	background-color: black;
+	color: green;
+	font-size: 30px;
+
+}
+
+.status {
+	vertical-align: top;
 }
 
 #status{
+	font-size: 15px;
 	-webkit-transition: color 100ms ease-in;
 }
 
