@@ -66,18 +66,16 @@
 		function start(){
 
 			/* draw asteroids */
-			var gun = new Gun();
 			intervalId1 = setInterval(function() {
 				var asteroidX = new Asteroid();
+				var gun = new Gun();
 				asteroids.push(asteroidX);
-
-				do{
 					intervalId2= setInterval(function(){
-						asteroidX.fallDown();
-						requestAnimationFrame(gun.draw());
-						reDraw();
+						if (worldEnded == false) {
+							gun.draw();
+							asteroidX.fallDown();
+						}
 					},20)
-				}while(this.alive == true);
 			}, 500);
 
 			// var gun = new Gun();
@@ -138,11 +136,13 @@
 		}
 
 		}
-		function killAll() {
-			asteroids.forEach(function(asteroid) {
-				asteroid.alive = false;
-			})
-		}
+		// function killAll(array) {
+		// 	array.forEach(function(asteroid) {
+		// 		asteroid.alive = false;
+		// 		asteroid.save;
+		// 		// console.log(asteroid.alive)
+		// 	})
+		// }
 
 		Asteroid.prototype.fallDown = function() {
 			if (worldEnded == false) {
@@ -191,7 +191,7 @@
 						this.alive = false;
 						var color = 0;
 						this.worldContext.closePath();
-						killAll();
+						// killAll(asteroids);
 						worldEnded = true;
 						function drawExplosion() {
 							context.fillStyle = 'hsl(' + color++ + ',100%, 50%)';
@@ -203,7 +203,7 @@
 
 							setTimeout(function() {
 							if (radius < 1000) {
-								requestAnimationFrame(drawExplosion);
+								drawExplosion();
 							} else {
 								var worldX = document.getElementById("primary");
 								endContext = worldX.getContext("2d");
