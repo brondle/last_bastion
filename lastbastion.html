@@ -39,20 +39,21 @@
 						curPos[1] = 0;
 					}
 				});
+				var gun = new Gun();
+				worldXContext.clearRect(420, 407, 100, 100);
+				gun.draw();
 				drawBase();
-				worldXContext.clearRect(435, 407, 100, 100);
 		};
 
 		function checkVars(){
-			console.log(sessionStorage.beatLevel);
 			if(localStorage.beatLevel == "true") {
 				var worldX = document.getElementById("primary");
 				var ctx = worldX.getContext("2d");
 				ctx.fillStyle = "white";
-				ctx.font = "30px Arial";
-				ctx.fillText(("GOOD JOB! NEXT WAVE:" + sessionStorage.enemies), 400, 250);
+				ctx.font = "30px Courier";
+				ctx.fillText(("WELL DONE! NEXT WAVE: " + sessionStorage.enemies), 350, 250);
 				ctx.fill();
-				sessionStorage.beatLevel = false;
+				localStorage.beatLevel = false;
 			}
 			if(sessionStorage.hit==0 || sessionStorage.hit==undefined) {
 				sessionStorage.hit=0;
@@ -78,6 +79,7 @@
 			var worldX = document.getElementById("primary");
 			var ctx = worldX.getContext("2d");
 			ctx.clearRect(0, 0, 1000, 500);
+			drawLandscape();
 			var gun = new Gun();
 			/* draw asteroids */
 			intervalId1 = setInterval(function() {
@@ -93,12 +95,11 @@
 					},20)
 			}, 500);
 
-			ctx.strokeRect(434, 406, 102, 102);
+			ctx.strokeRect(424, 406, 102, 102);
 			ctx.beginPath();
-			ctx.arc(485, 500, 75, 2*Math.PI, 0);
+			ctx.arc(475, 500, 75, 2*Math.PI, 0);
 			ctx.stroke();
 			ctx.closePath();
-
 			btnStarter = document.getElementById("btx");
 			btnStarter.setAttribute("value", "RESTART");
 			btnStarter.setAttribute("onclick", "restart()");
@@ -193,7 +194,7 @@
 						var context = this.worldContext;
 						var x = this.x;
 						var y = this.y;
-						if (x >= 434 && x<=536) {
+						if(x >= 434 && x<=536) {
 							var sU = "The base was destroyed!";
 							setStatusUpdate(sU);
 						}
@@ -275,7 +276,7 @@
 				topScore = true;
 			}
 			if(enemiesRemaining==0){
-				sessionStorage.beatLevel = true;
+				localStorage.beatLevel = true;
 				sessionStorage.enemies = sessionStorage.enemies * 2;
 				sessionStorage.hit = hit;
 				location.reload(true);
@@ -317,14 +318,14 @@
 		Gun.prototype.draw = function() {
 			ctx = this.worldContext;
 			ctx.save();
-			ctx.clearRect(435, 407, 100, 100);
+			ctx.clearRect(425, 407, 100, 100);
 			var angle = Math.atan2(curPos[1] - 475, curPos[0] - 440);
-			ctx.translate(477.5, 440);
+			ctx.translate(472.5, 440);
 			ctx.rotate(angle);
 			ctx.strokeStyle = "white";
 			ctx.strokeRect(0, 0, 30, 5);
 			ctx.rotate(angle*(-1));
-			ctx.translate(-477.5, -440);
+			ctx.translate(-472.5, -440);
 			ctx.restore;
 		}
 
@@ -332,7 +333,7 @@
 		function resetAll() {
 			sessionStorage.hit = 0;
 			sessionStorage.enemies = 0;
-			localStorage.topScore = 0;
+			// localStorage.topScore = 0;
 			location.reload(true);
 		}
 
@@ -340,11 +341,58 @@
 			world = document.getElementById("primary");
 			ctx = world.getContext("2d");
 			ctx.strokeStyle = "green";
-			ctx.strokeRect(455, 440, 50, 50);
+			ctx.strokeRect(450, 440, 50, 50);
 			ctx.fillStyle = "grey";
-			ctx.fillRect(472.5, 433, 17.5, 17.5);
-			ctx.strokeRect(450, 455, 60, 35);
-			ctx.strokeRect(440, 470, 80, 20);
+			ctx.fillRect(467.5, 433, 17.5, 17.5);
+			ctx.strokeRect(445, 455, 60, 35);
+			ctx.strokeRect(435, 470, 80, 20);
+			ctx.strokeRect(430, 480, 90, 20);
+		}
+
+		function drawLandscape() {
+			var canvas = document.getElementById("primary");
+			var context = canvas.getContext("2d");
+			context.strokeStyle = "white";
+			// parameters - change to your liking
+			var STEP_MAX = 2.0;
+			var STEP_CHANGE = 1.0;
+			var HEIGHT_MAX = canvas.height;
+
+			// starting conditions
+			var height = Math.random() * HEIGHT_MAX;
+			var slope = (Math.random() * STEP_MAX) * 2 - STEP_MAX;
+
+			// creating the landscape
+			for (var x = 0; x < canvas.width; x++) {
+					 // change height and slope
+					 height += slope;
+					 slope += (Math.random() * STEP_CHANGE) * 2 - STEP_CHANGE;
+
+					 // clip height and slope to maximum
+					 if (slope > STEP_MAX) { slope = STEP_MAX };
+					 if (slope < -STEP_MAX) { slope = -STEP_MAX };
+
+					 if (height > HEIGHT_MAX) {
+							 height = HEIGHT_MAX;
+							 slope *= -1;
+					 }
+
+					 if (height <= 250) {
+						 height = 250;
+						 slope *= -1;
+					 }
+					 if (height < 0) {
+							 height = 0;
+							 slope *= -1;
+					 }
+
+					 // draw column
+					context.beginPath();
+					 context.moveTo(x, height -1);
+					 context.lineTo(x, height);
+					 context.stroke();
+					context.closePath();
+			}
 		}
 
 </script>
