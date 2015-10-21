@@ -26,7 +26,6 @@
 			worldXContext.stroke;
 				intervalId1 = 0;
 				intervalId2 = 0;
-				intervalId3 = 0;
 				kin.getCanvas().mouseup = function() {
 					kin.drawStage();
 				};
@@ -64,30 +63,27 @@
 			}
 
 		function start(){
-
+			var gun = new Gun();
 			/* draw asteroids */
 			intervalId1 = setInterval(function() {
 				var asteroidX = new Asteroid();
-				var gun = new Gun();
 				asteroids.push(asteroidX);
 					intervalId2= setInterval(function(){
 						if (worldEnded == false) {
-							gun.draw();
 							asteroidX.fallDown();
+							gun.draw();
+							drawBase();
+
 						}
 					},20)
 			}, 500);
-
-			// var gun = new Gun();
-			// intervalId3 = setInterval(function(){
-			// }, 20);
-
-			var c = document.getElementById("primary");
-			var ctx = c.getContext("2d");
-			ctx.strokeStyle = "white";
-			ctx.arc(475, 450, 25, Math.PI, 0, false);
+			var worldX = document.getElementById("primary");
+			var ctx = worldX.getContext("2d");
+			ctx.strokeRect(434, 406, 102, 102);
+			ctx.beginPath();
+			ctx.arc(485, 500, 75, 2*Math.PI, 0);
 			ctx.stroke();
-
+			ctx.closePath();
 
 			btnStarter = document.getElementById("btx");
 			btnStarter.setAttribute("value", "RESTART");
@@ -154,7 +150,6 @@
 					this.worldContext.strokeStyle = "#FFFF00";
 					this.worldContext.arc(this.x,this.y,10,0,Math.PI*2,true);
 					this.worldContext.stroke();
-					this.worldContext.strokeStyle = "#FF0000";
 					statUp ="<br> ASTEROID DESTROYED!";
 					setStatusUpdate(statUp);
 					//this.y = y;
@@ -166,32 +161,32 @@
 					checkForTopScore();
 					}			else
 								{
+									this.worldContext.strokeStyle = "#FFFF00";
 									this.worldContext.moveTo(this.x,this.y);
 									this.trajectory();
 									this.worldContext.lineTo(this.x,this.y);
 									this.worldContext.stroke();
 									if(this.y>250){
 										if(this.update==false){
-
 										statUp ="</br> An asteroid has entered the atmosphere!";
 										setStatusUpdate(statUp);
 										this.update=true;
 										}
 									}
 
-					if(this.y>500){
+					if(this.y>500 || (inBuilding(this.worldContext, this.x, this.y) == true)){
 						var context = this.worldContext;
-						// context.fillStyle="#FF0000";
-						// context.arc(this.x, this.y, 100, 0, Math.PI*2, true);
-						// context.stroke();
-						// context.fill();
 						var x = this.x;
 						var y = this.y;
+						console.log(inBuilding(context, x, y));
+						if (x >= 434 && x<=536) {
+							var sU = "The base was destroyed!";
+							setStatusUpdate(sU);
+						}
 						var radius = 100;
 						this.alive = false;
 						var color = 0;
 						this.worldContext.closePath();
-						// killAll(asteroids);
 						worldEnded = true;
 						function drawExplosion() {
 							context.fillStyle = 'hsl(' + color++ + ',100%, 50%)';
@@ -238,6 +233,23 @@
 				window.clearInterval(intervalId1);
 				statUp = "THE WORLD HAS BEEN DESTROYED.";
 				setStatusUpdate(statUp);
+			}
+		}
+
+		function inBuilding(context, x, y) {
+			context.beginPath();
+			context.arc(485, 500, 75, 2*Math.PI, 0);
+			if (context.isPointInPath(x, y)) {
+				context.closePath();
+				return true;
+			} else {
+				context.closePath();
+				context.rect(406, 434, 102, 102);
+				if (context.isPointInPath(x, y)) {
+					return true;
+				} else {
+					return false;
+				}
 			}
 		}
 
@@ -289,29 +301,16 @@
 
 		Gun.prototype.draw = function() {
 			ctx = this.worldContext;
-			ctx.save;
-			ctx.clearRect(450, 390, 100, 100);
+			ctx.save();
+			ctx.clearRect(435, 407, 100, 100);
 			var angle = Math.atan2(curPos[1] - 475, curPos[0] - 440);
-			ctx.translate(475, 440);
+			ctx.translate(477.5, 440);
 			ctx.rotate(angle);
 			ctx.strokeStyle = "white";
-			ctx.fillStyle = "none";
-			ctx.strokeRect(0, 0, 30, 10);
-			ctx.stroke();
+			ctx.strokeRect(0, 0, 30, 5);
 			ctx.rotate(angle*(-1));
-			ctx.translate(-475, -440);
-			ctx.restore();
-		}
-		//
-		function reDraw(context) {
-			// worldX = document.getElementById("primary");
-			// ctx = worldX.getContext("2d");
-			// ctx.translate(450, 425);
-			// ctx.clearRect(0, 0, 50, 50);
-			// ctx.translate(-450, -425);
-			// ctx.strokeStyle = "white";
-			// ctx.arc(475, 450, 25, Math.PI, 0, false);
-			// ctx.stroke();
+			ctx.translate(-477.5, -440);
+			ctx.restore;
 		}
 
 
@@ -320,6 +319,17 @@
 			sessionStorage.enemies = 0;
 			localStorage.topScore = 0;
 			location.reload(true);
+		}
+
+		function drawBase() {
+			world = document.getElementById("primary");
+			ctx = this.world.getContext("2d");
+			ctx.strokeStyle = "green";
+			ctx.strokeRect(455, 440, 50, 50);
+			ctx.fillStyle = "grey";
+			ctx.fillRect(472.5, 433, 17.5, 17.5);
+			ctx.strokeRect(450, 455, 60, 35);
+			ctx.strokeRect(440, 470, 80, 20);
 		}
 
 </script>
