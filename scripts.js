@@ -4,6 +4,7 @@ worldEnded=false;
 var thisPos = new Array();
 var curPos = new Array();
 var asteroids = new Array();
+var gunPos = new Array();
 topScore = false;
 
 window.onload = function() {
@@ -41,7 +42,9 @@ function checkVars(){
 		ctx.font = "30px Courier";
 		ctx.fillText(("WELL DONE! NEXT WAVE: " + sessionStorage.enemies), 350, 250);
 		ctx.fill();
-		localStorage.beatLevel = false;
+		btnStarter = document.getElementById("btx");
+		btnStarter.setAttribute("value", "START");
+		btnStarter.setAttribute("onclick", "start()");
 	}
 	if(sessionStorage.hit==0 || sessionStorage.hit==undefined) {
 		sessionStorage.hit=0;
@@ -63,7 +66,9 @@ function checkVars(){
 		document.getElementById("enemiesRemaining").innerHTML = enemiesRemaining;
 	}
 
+
 function start(){
+	localStorage.beatLevel = false;
 	var worldX = document.getElementById("primary");
 	var ctx = worldX.getContext("2d");
 	ctx.clearRect(0, 0, 1000, 500);
@@ -80,11 +85,12 @@ function start(){
 		var asteroidX = new Asteroid();
 		asteroids.push(asteroidX);
 			intervalId2= setInterval(function(){
-				if (worldEnded == false) {
+				if (worldEnded == false && localStorage.beatLevel != true) {
 					asteroidX.fallDown();
 					gun.draw();
 				}
 			},20)
+
 	}, 750);
 
 	btnStarter = document.getElementById("btx");
@@ -92,10 +98,14 @@ function start(){
 	btnStarter.setAttribute("onclick", "restart()");
 }
 
+
 function restart() {
 	sessionStorage.hit = 0;
-	sessionStorage.enemies = 0;
-	location.reload(true);
+	var worldX = document.getElementById("primary");
+	var ctx = worldX.getContext("2d");
+	ctx.clearRect(0, 0, 1000, 500);
+	killAll(asteroids);
+	start();
 }
 
 function Asteroid() {
@@ -113,6 +123,12 @@ function Asteroid() {
 	} else {
 		this.direction = "left";
 	}
+}
+
+function killAll(array) {
+	array.forEach(function(object) {
+		object.alive = false;
+	});
 }
 
 Asteroid.prototype.trajectory = function(){
@@ -148,8 +164,6 @@ Asteroid.prototype.fallDown = function() {
 			this.worldContext.stroke();
 			statUp ="<br> ASTEROID DESTROYED!";
 			setStatusUpdate(statUp);
-			//this.y = y;
-			//this.x = x;
 			hit++;
 			enemiesRemaining--;
 			document.getElementById("score").innerHTML = hit;
@@ -258,9 +272,12 @@ function checkForTopScore() {
 	}
 	if(enemiesRemaining==0){
 		localStorage.beatLevel = true;
+		killAll(asteroids);
 		sessionStorage.enemies = sessionStorage.enemies * 2;
 		sessionStorage.hit = hit;
-		location.reload(true);
+		checkVars();
+		window.clearInterval(intervalId1);
+		// location.reload(true);
 	}
 }
 
