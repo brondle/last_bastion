@@ -3,7 +3,6 @@ enemiesRemaining=0;
 worldEnded=false;
 var thisPos = new Array();
 var curPos = new Array();
-var asteroids = new Array();
 var gunPos = new Array();
 topScore = false;
 
@@ -41,16 +40,16 @@ function checkVars(){
 		ctx.fillStyle = "white";
 		ctx.font = "30px Courier";
 		ctx.fillText(("WELL DONE! NEXT WAVE: " + sessionStorage.enemies), 350, 250);
-		ctx.fill();
 		btnStarter = document.getElementById("btx");
 		btnStarter.setAttribute("value", "START");
 		btnStarter.setAttribute("onclick", "start()");
+		console.log(sessionStorage.hit);
 	}
 	if(sessionStorage.hit==0 || sessionStorage.hit==undefined) {
 		sessionStorage.hit=0;
 	}
-	score = sessionStorage.hit;
-	document.getElementById("score").innerHTML = score;
+	hit = sessionStorage.hit;
+	document.getElementById("score").innerHTML = hit;
 
 	if(localStorage.topScore>=sessionStorage.hit && localStorage.topScore!=0) {
 		document.getElementById("topscore").innerHTML = localStorage.topScore;
@@ -83,16 +82,19 @@ function start(){
 	gun.draw();
 	intervalId1 = setInterval(function() {
 		var asteroidX = new Asteroid();
-		asteroids.push(asteroidX);
+
+		do{
 			intervalId2= setInterval(function(){
 				if (worldEnded == false && localStorage.beatLevel != true) {
 					asteroidX.fallDown();
-					gun.draw();
 				}
-			},20)
-
-	}, 750);
-
+			}, 20)}while(this.alive==true);
+		}, 500);
+	setInterval(function() {
+		if (worldEnded == false) {
+			gun.draw();
+		}
+	}, 50)
 	btnStarter = document.getElementById("btx");
 	btnStarter.setAttribute("value", "RESTART");
 	btnStarter.setAttribute("onclick", "restart()");
@@ -101,11 +103,8 @@ function start(){
 
 function restart() {
 	sessionStorage.hit = 0;
-	var worldX = document.getElementById("primary");
-	var ctx = worldX.getContext("2d");
-	ctx.clearRect(0, 0, 1000, 500);
-	killAll(asteroids);
-	start();
+	sessionStorage.enemies = 0;
+	location.reload(true);
 }
 
 function Asteroid() {
@@ -127,7 +126,7 @@ function Asteroid() {
 
 function killAll(array) {
 	array.forEach(function(object) {
-		object.alive = false;
+		object.alive == false;
 	});
 }
 
@@ -272,12 +271,13 @@ function checkForTopScore() {
 	}
 	if(enemiesRemaining==0){
 		localStorage.beatLevel = true;
-		killAll(asteroids);
 		sessionStorage.enemies = sessionStorage.enemies * 2;
+		btnStarter = document.getElementById("btx");
+		btnStarter.setAttribute("value", "START");
+		btnStarter.setAttribute("onclick", "start()");
 		sessionStorage.hit = hit;
 		checkVars();
-		window.clearInterval(intervalId1);
-		// location.reload(true);
+		location.reload()
 	}
 }
 
@@ -332,7 +332,6 @@ Gun.prototype.draw = function() {
 function resetAll() {
 	sessionStorage.hit = 0;
 	sessionStorage.enemies = 0;
-	// localStorage.topScore = 0;
 	location.reload(true);
 }
 
